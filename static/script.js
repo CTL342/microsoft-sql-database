@@ -4,7 +4,7 @@ const passwordInput = document.getElementById('password');
 const submitBtn = document.getElementById('submit-btn');
 const errorMessage = document.getElementById('error-message');
 
-document.write('<link rel="stylesheet" href="/static/style.css">');
+console.log('Script loaded');
 
 function validateInputs() {
     const username = usernameInput.value.trim();
@@ -15,17 +15,6 @@ function validateInputs() {
         submitBtn.disabled = true;
         return false;
     }
-    if (username.length < 3) {
-        errorMessage.textContent = 'Username must be at least 3 characters long.';
-        submitBtn.disabled = true;
-        return false;
-    }
-    if (password.length < 6) {
-        errorMessage.textContent = 'Password must be at least 6 characters long.';
-        submitBtn.disabled = true;
-        return false;
-    }
-
     errorMessage.textContent = '';
     submitBtn.disabled = false;
     return true;
