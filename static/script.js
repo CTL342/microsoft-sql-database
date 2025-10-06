@@ -4,8 +4,6 @@ const passwordInput = document.getElementById('password');
 const submitBtn = document.getElementById('submit-btn');
 const errorMessage = document.getElementById('error-message');
 
-console.log('Script loaded');
-
 function validateInputs() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();

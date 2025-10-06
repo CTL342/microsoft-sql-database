@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Sign Up</h2>
+        <form id="signup-form">
+            <div class="input-group">
+                <label for="new-username">Username</label>
+                <input type="text" id="new-username" name="new-username" required>
+            </div>
+            <div class="input-group">
+                <label for="new-password">Password</label>
+                <input type="password" id="new-password" name="new-password" required>
+            </div>
+            <button type="submit" id="signup-btn">Sign Up</button>
+        </form>
+        <p id="signup-error" class="error-message"></p>
+        <p>Already Registered? <a href="/">Log in here</a></p>
+    </div>
+    <script src="../static/script.js"></script>
+</body>
+</html>

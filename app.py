@@ -1,12 +1,13 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
+import sqlite3
 
 app = Flask(__name__)
 CORS(app)
 
-users = {
-    'temp': 'temptemp'
-}
+con = sqlite3.connect("SSD.db", check_same_thread=False)
+cur = con.cursor()
+cur.execute("CREATE TABLE IF NOT EXISTS users(username TEXT PRIMARY KEY, password TEXT)")
 
 @app.route("/api/login", methods=['POST'])
 def login():
@@ -22,7 +23,11 @@ def login():
         if not username or not password:
             return jsonify({'message': 'Missing username or password'}), 400
 
-        if username in users and users[username] == password:
+        # Query the database for the user
+        cur.execute("SELECT password FROM users WHERE username = ?", (username,))
+        stored_password = cur.fetchone()
+
+        if stored_password and stored_password[0] == password:
             return jsonify({
                 'message': 'Login successful!',
                 'user': {'username': username}
@@ -33,9 +38,43 @@ def login():
         print('Error in login route:', str(e))
         return jsonify({'message': 'Server error'}), 500
 
+@app.route("/api/signup", methods=['POST'])
+def signup():
+    try:
+        print('Received signup request:', request.get_json())
+        data = request.get_json()
+        if data is None:
+            print('No JSON data received')
+            return jsonify({'message': 'Invalid request data'}), 400
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            return jsonify({'message': 'Missing username or password'}), 400
+
+        # Check if username already exists
+        cur.execute("SELECT username FROM users WHERE username = ?", (username,))
+        if cur.fetchone():
+            return jsonify({'message': 'Username already exists'}), 400
+
+        # Insert new user into database
+        cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        con.commit()
+        return jsonify({'message': 'Signup successful!'}), 201
+    except sqlite3.IntegrityError:
+        return jsonify({'message': 'Username already exists'}), 400
+    except Exception as e:
+        print('Error in signup route:', str(e))
+        con.rollback()
+        return jsonify({'message': 'Server error'}), 500
+
 @app.route('/')
 def serve_index():
     return render_template('index.html')
+
+@app.route('/signup.html')
+def serve_signup():
+    return render_template('signup.html')
 
 @app.route('/dashboard.html')
 def serve_dashboard():

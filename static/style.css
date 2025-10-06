@@ -69,6 +69,14 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.signup-link a {
+    color: #007bff;
+    text-decoration: none;
+}
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
 .error-message {
     color: #d32f2f;
     margin-top: 1rem;
