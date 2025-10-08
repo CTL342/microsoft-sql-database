@@ -4,12 +4,20 @@ body {
     background-color: #f0f2f5;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+}
+
+body.login-page {
     height: 100vh;
+}
+
+body.signup-page {
+    height: 150vh;
 }
 
 .login-container {
     background-color: #fff;
+    margin-top: 20vh;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

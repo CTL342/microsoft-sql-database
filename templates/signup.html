@@ -6,7 +6,7 @@
     <title>Sign Up</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="signup-page">
     <div class="login-container">
         <h2>Sign Up</h2>
         <form id="signup-form">
@@ -18,9 +18,29 @@
                 <label for="new-password">Password</label>
                 <input type="password" id="new-password" name="new-password" required>
             </div>
+            <div class="input-group">
+                <label for="new-email">Email</label>
+                <input type="email" id="new-email" name="new-email" required>
+            </div>
+            <div class="input-group">
+                <label for="new-first-name">First Name</label>
+                <input type="text" id="new-first-name" name="new-first-name" required>
+            </div>
+            <div class="input-group">
+                <label for="new-last-name">Last Name</label>
+                <input type="text" id="new-last-name" name="new-last-name" required>
+            </div>
+            <div class="input-group">
+                <label for="new-age">Age</label>
+                <input type="number" id="new-age" name="new-age" required min="1" max="120">
+            </div>
             <button type="submit" id="signup-btn">Sign Up</button>
         </form>
         <p id="signup-error" class="error-message"></p>
+        <div class="terms-container">
+            <input type="checkbox" id="terms-checkbox" name="terms" required>
+            <label for="terms-checkbox">I agree to the <a href="/terms.html">Terms and Conditions</a></label>
+        </div>
         <p>Already Registered? <a href="/">Log in here</a></p>
     </div>
     <script src="/static/signup.js"></script>

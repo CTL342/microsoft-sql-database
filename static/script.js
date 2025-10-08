@@ -13,16 +13,6 @@ function validateInputs() {
         submitBtn.disabled = true;
         return false;
     }
-    if (username.length < 3) {
-        errorMessage.textContent = 'Username must be at least 3 characters long';
-        submitBtn.disabled = true;
-        return false;
-    }
-    if (password.length < 6) {
-        errorMessage.textContent = 'Password must be at least 6 characters long';
-        submitBtn.disabled = true;
-        return false;
-    }
 
     errorMessage.textContent = '';
     submitBtn.disabled = false;
@@ -33,14 +23,14 @@ async function signUpUser(username, password) {
     console.log('Sending sign up request with:', { username, password });
 
     if (!validateInputs()) {
-        return; // Exit early if validation fails
+        return;
     }
 
     submitBtn.disabled = true;
     errorMessage.textContent = 'Signing up...';
 
     try {
-        const response = await fetch('/api/signup', { // Changed to lowercase 'signup'
+        const response = await fetch('/api/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -58,7 +48,7 @@ async function signUpUser(username, password) {
         errorMessage.style.color = '#28a745';
         errorMessage.textContent = data.message || 'Signed up successfully!';
         setTimeout(() => {
-            window.location.href = '/'; // Redirect to login page after signup
+            window.location.href = '/';
         }, 1000);
     } catch (error) {
         console.error('Signup error:', error.message);
