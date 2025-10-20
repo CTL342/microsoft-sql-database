@@ -1,63 +1,47 @@
-Real-Time Cooling System SQL Dashboard
+# Real-Time Cooling System SQL Dashboard
 
-This project is a web-based dashboard that displays real-time data from a Microsoft SQL Server database. It uses a Flask backend to serve a web interface and provide an API, all while the SQL Server instance runs conveniently in a Docker container.
+This project is a web-based dashboard that displays real-time data from a Microsoft SQL Server database. It uses a Flask backend to serve a web interface and provide an API, with the SQL Server instance running in a Docker container for easy setup.
 
-Project Overview
+## Features
 
-The application provides a simple user authentication system (signup/login). Once logged in, the user is presented with a dashboard that fetches and displays the most recent entry from the CoolingData table every second, simulating a real-time monitoring system.
+- **User Authentication**: Secure signup and login functionality.
+- **Real-Time Data Display**: Dashboard fetches and displays the latest entry from the `CoolingData` table every second.
+- **Containerized SQL Server**: Uses Microsoft SQL Server in a Docker container for portability.
+- **Flask Backend**: Lightweight Python-based web server to handle API requests and serve the frontend.
 
-Features
+## Technology Stack
 
-User Authentication: Secure signup and login functionality.
+- **Backend**: Flask (Python)
+- **Database**: Microsoft SQL Server (Docker)
+- **Python Libraries**: `pyodbc`, `SQLAlchemy`, `pandas`, `Flask-Cors`, `python-dotenv`, `werkzeug`
+- **Frontend**: HTML, CSS, JavaScript (served by Flask)
 
-Real-Time Data Display: The main dashboard fetches and displays new data every second.
+## Prerequisites
 
-Containerized SQL Server: Uses a full-featured Microsoft SQL Server running in a Docker container for easy setup and portability.
+Ensure the following software is installed:
 
-Flask Backend: A lightweight Python-based web server to handle API requests and serve the front end.
+- **Python 3.8+**: [Download Python](https://www.python.org/downloads/)
+- **Docker Desktop**: [Download Docker](https://www.docker.com/products/docker-desktop/)
+- **Git**: [Download Git](https://git-scm.com/downloads)
+- **SQL Database GUI Tool** (choose one):
+  - [Azure Data Studio](https://azure.microsoft.com/en-us/products/data-studio/) (recommended, cross-platform)
+  - [Beekeeper Studio](https://www.beekeeperstudio.io/) (cross-platform)
+  - [SQL Server Management Studio (SSMS)](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms) (Windows-only)
 
-Technology Stack
+## Setup Instructions
 
-Backend: Flask (Python)
+### 1. Get the Project Files
 
-Database: Microsoft SQL Server (running in Docker)
+Clone the repository and navigate to the project folder:
 
-Python Libraries: pyodbc, SQLAlchemy, pandas, Flask-Cors, python-dotenv, werkzeug
-
-Frontend: HTML, CSS, JavaScript (served by Flask)
-
-Prerequisites
-
-Before you begin, ensure you have the following software installed on your system:
-
-Python 3.8+: Download Python
-
-Docker Desktop: Download Docker
-
-Git: Download Git
-
-A SQL Database GUI Tool (Choose one):
-
-Azure Data Studio (Recommended, cross-platform)
-
-Beekeeper Studio (Cross-platform)
-
-SQL Server Management Studio (SSMS) (Windows-only)
-
-Setup Instructions
-
-Follow these steps to get the application running on your local machine.
-
-1. Get the Project Files
-
-First, clone the repository to your local machine.
-
+```bash
 git clone <your-repository-url>
 cd <project-folder>
+```
 
+Create a `requirements.txt` file in the project root with the following:
 
-Next, create a file named requirements.txt in the root of your project folder and add the following lines:
-
+```
 Flask
 pyodbc
 python-dotenv
@@ -65,113 +49,108 @@ Flask-Cors
 werkzeug
 pandas
 SQLAlchemy
+```
 
+### 2. Set Up Python Environment
 
-2. Set Up Python Environment
+Use a virtual environment to manage dependencies:
 
-It's highly recommended to use a virtual environment to manage your Python dependencies.
-
-# Create a virtual environment
+```bash
 python3 -m venv venv
+```
 
-# Activate the virtual environment
-# On macOS/Linux:
-source venv/bin/activate
-# On Windows:
-.\venv\Scripts\activate
+Activate the virtual environment:
 
-# Install the required Python packages
+- **macOS/Linux**:
+  ```bash
+  source venv/bin/activate
+  ```
+- **Windows**:
+  ```bash
+  .\venv\Scripts\activate
+  ```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
+```
 
+### 3. Configure Environment Variables
 
-3. Configure Environment Variables
+Create a `.env` file in the project root with the following content. Do not commit this file to version control:
 
-Create a file named .env in the root of your project directory. This file will hold your database credentials. Do not commit this file to version control.
-
-# .env file
+```
 SERVER=localhost
 DATABASE=CoolingSystemDB
 USERNAME=sa
 PASSWORD=YourStrongP@ssw0rd!
+```
 
+⚠️ **Important**: The `PASSWORD` must meet SQL Server's complexity requirements (uppercase, lowercase, numbers, symbols).
 
-⚠️ Important: The PASSWORD must meet SQL Server's complexity requirements (e.g., include uppercase, lowercase, numbers, and symbols). The one provided above is an example.
+### 4. Start SQL Server with Docker
 
-4. Start the SQL Server with Docker
+Run the following command to start the SQL Server container:
 
-Run the following command in your terminal to download and start the Microsoft SQL Server container. This command pulls the password directly from your .env file.
+```bash
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrongP@ssw0rd!" -p 1433:1433 --name sql_server_dashboard -d mcr.microsoft.com/mssql/server:2022-latest
+```
 
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrongP@ssw0rd!" \
--p 1433:1433 --name sql_server_dashboard -d \
-[mcr.microsoft.com/mssql/server:2022-latest](https://mcr.microsoft.com/mssql/server:2022-latest)
+- `-p 1433:1433`: Maps the container's SQL Server port to your local machine.
+- `--name sql_server_dashboard`: Names the container.
 
+### 5. Install ODBC Drivers
 
--p 1433:1433: Maps the container's SQL Server port to your local machine's port.
+The `pyodbc` library requires an ODBC driver to connect to SQL Server.
 
---name sql_server_dashboard: Gives the container a memorable name.
+#### Option A: Windows Users
 
-5. Install ODBC Drivers
+- Download and install [ODBC Driver 17 for SQL Server](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server).
+- Installing SSMS often includes the necessary drivers.
 
-The Python pyodbc library requires a system-level ODBC driver to communicate with SQL Server. Please follow the instructions for your operating system.
+#### Option B: macOS/Linux Users
 
-Option A: For Windows Users
+For **macOS** (using Homebrew):
 
-Windows users can typically download the official Microsoft driver.
-
-Go to the Microsoft ODBC Driver for SQL Server download page.
-
-Download and install the latest "ODBC Driver 17 for SQL Server" (or newer).
-
-Installing SQL Server Management Studio (SSMS) (linked in the prerequisites) often includes the necessary drivers as well.
-
-Option B: For macOS / Linux Users
-
-For macOS, the easiest way to install the drivers is via Homebrew.
-
-# Install the core ODBC driver manager
+```bash
 brew install unixodbc
-
-# Tap the Microsoft repository and install the official driver
-brew tap microsoft/mssql-release [https://github.com/Microsoft/homebrew-mssql-release](https://github.com/Microsoft/homebrew-mssql-release)
+brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release
 brew install msodbcsql17
+```
 
+For **Linux**, follow the [Microsoft ODBC Driver installation instructions](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server).
 
-For Linux distributions, follow the official instructions on the Microsoft ODBC Driver for SQL Server download page.
+### 6. Create and Populate the Database
 
-6. Create and Populate the Database
+#### a. Connect with Your Database Tool
 
-Now you'll connect to your running SQL Server container and set up the database.
+Open your SQL GUI tool (Azure Data Studio, Beekeeper Studio, or SSMS) and create a connection:
 
-a. Connect with your Database Tool
+- **Server/Hostname**: `localhost`
+- **Port**: `1433`
+- **Authentication Type**: SQL Login
+- **Username**: `sa`
+- **Password**: `YourStrongP@ssw0rd!` (or as set in `.env`)
 
-Open your preferred SQL GUI (Azure Data Studio, Beekeeper Studio, or SSMS). Create a new connection with the following credentials:
+#### b. Run SQL Setup Scripts
 
-Server / Hostname: localhost
+Run these scripts in your SQL GUI tool:
 
-Port: 1433 (this is the default)
+**Script 1: Create the Database**
 
-Authentication Type: SQL Login
-
-Username: sa
-
-Password: YourStrongP@ssw0rd! (or whatever you set in your .env file)
-
-b. Run SQL Setup Scripts
-
-Once connected, open a new query editor and run the following SQL scripts one by one.
-
-Script 1: Create the Database
-
+```sql
 CREATE DATABASE CoolingSystemDB;
+```
 
+**Script 2: Create the `users` Table**
 
-Script 2: Create the users Table
-(Ensure you are running this script against the CoolingSystemDB database you just created.)
+Ensure you are using the `CoolingSystemDB` database:
 
+```sql
 USE CoolingSystemDB;
 GO
 
--- Table for user accounts
 CREATE TABLE users (
     username NVARCHAR(50) PRIMARY KEY,
     password NVARCHAR(255) NOT NULL,
@@ -180,59 +159,56 @@ CREATE TABLE users (
     lastName NVARCHAR(100),
     age INTEGER
 );
+```
 
+#### c. Import the Kaggle Dataset
 
-c. Import the Kaggle Dataset
+- Download the [Cooling Tower Optimization Dataset](https://www.kaggle.com/datasets/ziyaem/cooling-tower-optimization-dataset) from Kaggle.
+- Save `cooling_tower_data.csv` in the project root.
+- Run the import script (with virtual environment active):
 
-This step uses a Python script to automatically create the CoolingData table and upload the sample data.
-
-Download the Dataset: Go to the Kaggle: Cooling Tower Optimization Dataset page.
-
-Save the File: Download the cooling_tower_data.csv file and save it in the root of your project folder (the same directory as app.py).
-
-Run the Import Script: In your terminal (with your virtual environment still active), run:
-
+```bash
 python import_kaggle_data.py
+```
 
+This script creates the `CoolingData` table and uploads the CSV data.
 
-This script will connect to your database, create the CoolingData table, and upload all the data from the CSV. This may take a minute to complete.
+## Running the Application
 
-Running the Application
+### 1. Start the SQL Server Container
 
-You're all set! Follow these steps to launch the web application.
+If the container is stopped, restart it:
 
-1. Start the SQL Server Container (if not running)
-
-If you stopped your computer or the Docker container, you'll need to restart it.
-
+```bash
 docker start sql_server_dashboard
+```
 
+### 2. Start the Flask Web Server
 
-2. Start the Flask Web Server
+Ensure your virtual environment is active:
 
-Make sure your virtual environment is active.
+- **macOS/Linux**:
+  ```bash
+  source venv/bin/activate
+  ```
+- **Windows**:
+  ```bash
+  .\venv\Scripts\activate
+  ```
 
-# On macOS/Linux:
-source venv/bin/activate
-# On Windows:
-.\venv\Scripts\activate
+Run the Flask app:
 
-# Run the app
+```bash
 python app.py
+```
 
+### 3. Access the Application
 
-3. Access the Application
+Open your browser and navigate to `http://127.0.0.1:5001`. Use the signup page to create an account, then log in to view the real-time dashboard.
 
-Open your web browser and navigate to http://127.0.0.1:5001.
+## Acknowledgements
 
-You will see the login page. You can create a new account via the signup page and then log in to view the real-time dashboard.
+This project uses the [Cooling Tower Optimization Dataset](https://www.kaggle.com/datasets/ziyaem/cooling-tower-optimization-dataset) by Ziya on Kaggle.
 
-Acknowledgements
-
-This project uses the Cooling Tower Optimization Dataset provided by Ziya on Kaggle.
-
-Author: Ziya
-
-Dataset: Cooling Tower Optimization Dataset
-
-Source: Kaggle
+- **Author**: Ziya
+- **Source**: Kaggle
