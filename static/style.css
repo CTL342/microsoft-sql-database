@@ -24,6 +24,15 @@ body.signup-page {
     width: 100%;
     max-width: 400px;
     text-align: center;
+    outline: 1px solid #d3d3d3;
+}
+
+.login-container:hover {
+    outline: 2px solid #aaaaaa;
+}
+
+.login-container:focus-within {
+    outline: 2px solid #d3d3d3;
 }
 
 h2 {
@@ -109,35 +118,36 @@ button:disabled {
 }
 
 #live-data-entry {
+    width: 100%;
+    margin-top: 1rem;
     display: flex;
-    flex-wrap: wrap; 
-    gap: 12px;      
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.live-data-point {
-    background-color: #2a2a2e;
-    border-radius: 6px;
-    padding: 8px 12px;
-    min-width: 150px; 
-    border-left: 4px solid #00aaff;
+.data-pair {
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    min-width: 150px;
 }
 
-.live-data-point .data-label {
-    display: block;
+.variable {
+    padding: 8px;
+    text-align: center;
+    background-color: #d3d3d3;
+    border: 1px solid #000000;
     font-size: 0.8rem;
-    color: #a0a0a0;
-    margin-bottom: 4px;
+    color: #4b5563;
 }
 
-.live-data-point .data-value {
-    display: block;
-    font-size: 1.2rem;
+.value {
+    padding: 8px;
+    text-align: center;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    font-size: 0.8rem;
     font-weight: bold;
-    color: #ffffff;
     font-family: 'Courier New', Courier, monospace;
-}
-
-@keyframes flash-animation {
-    0% { box-shadow: 0 0 12px 3px #00aaff; }
-    100% { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+    color: #1f2937;
 }

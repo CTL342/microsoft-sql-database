@@ -11,22 +11,23 @@ const allColumns = [
 function initializeLiveDataDisplay() {
     const container = document.getElementById('live-data-entry');
     container.innerHTML = '';
+    
     allColumns.forEach(column => {
-        const pointDiv = document.createElement('div');
-        pointDiv.className = 'live-data-point';
+        const pairDiv = document.createElement('div');
+        pairDiv.className = 'data-pair';
 
-        const labelSpan = document.createElement('span');
-        labelSpan.className = 'data-label';
-        labelSpan.textContent = column.replace(/_/g, ' ');
+        const variableDiv = document.createElement('div');
+        variableDiv.className = 'variable';
+        variableDiv.textContent = column.replace(/_/g, ' ');
 
-        const valueSpan = document.createElement('span');
-        valueSpan.className = 'data-value';
-        valueSpan.id = `live-${column}`;
-        valueSpan.textContent = '--';
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'value';
+        valueDiv.id = `live-${column}`;
+        valueDiv.textContent = '--';
 
-        pointDiv.appendChild(labelSpan);
-        pointDiv.appendChild(valueSpan);
-        container.appendChild(pointDiv);
+        pairDiv.appendChild(variableDiv);
+        pairDiv.appendChild(valueDiv);
+        container.appendChild(pairDiv);
     });
 }
 
@@ -36,7 +37,6 @@ async function fetchLatestEntry() {
         if (!response.ok) return;
 
         const data = await response.json();
-        const liveDataContainer = document.getElementById('live-data-container');
 
         if (data.latest_entry) {
             for (const key in data.latest_entry) {
@@ -49,11 +49,6 @@ async function fetchLatestEntry() {
                     valueElement.textContent = value;
                 }
             }
-            
-            liveDataContainer.classList.add('flashing');
-            setTimeout(() => {
-                liveDataContainer.classList.remove('flashing');
-            }, 1000);
         }
     } catch (error) {
         console.error('Error fetching latest entry:', error);

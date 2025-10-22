@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 load_dotenv()
-server = os.getenv('SERVER')
+server = os.getenv("SERVER")
 database = os.getenv("DATABASE")
 uid = os.getenv("USERNAME")
 pid = os.getenv("PASSWORD")
