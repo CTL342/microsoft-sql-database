@@ -1,10 +1,15 @@
 import os
 from dotenv import load_dotenv
+
 import pyodbc
 from flask import Flask, request, jsonify, render_template, send_from_directory, g
 from flask_cors import CORS
 from datetime import datetime
 from decimal import Decimal
+
+from ollama import chat
+from ollama import ChatResponse
+
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +19,17 @@ server = os.getenv("SERVER")
 database = os.getenv("DATABASE")
 uid = os.getenv("USERNAME")
 pid = os.getenv("PASSWORD")
+
+max_token = 5000
+directions = """You are a professional AI guide for nuclear reactor cooling systems, offering concise, accurate 
+operator advice using data retrieved along with user inputs. Emphasize safety and reliability 
+via thermal-hydraulics, passive cooling, and emergency protocols. Structure responses: brief overview, key facts 
+(bullets if needed), actionable steps. Use direct, authoritative tone like a shift supervisor. Explain concepts 
+simply (e.g., passive cooling uses natural convection sans power); forecast scenarios with simulations; highlight 
+redundancies like ECCS. For gaps, consult site protocols or regulators, underscoring proven safety. Please unsure
+outputs are structured and maintain simplicity for intuitive experience.
+"""
+messages= [{"role": "system", "content": directions}]
 
 def get_db_connection():
     conn_str = (
@@ -35,6 +51,70 @@ def get_db():
     if 'db' not in g:
         g.db = get_db_connection()
     return g.db
+
+def get_num_tokens(messages: list) -> int:
+    total_string = ""
+    for message in messages:
+        total_string += message["content"]
+    total_token = len(total_string.split())
+    return total_token
+
+def token_reducer(messages: list) -> list:
+    while get_num_tokens(messages) > max_token:
+        if len(messages) <= 1:
+            break
+        messages.pop(1)
+    return messages
+
+def get_latest_entry_data():
+    try:
+        conn = get_db()
+        if not conn:
+            print("!!! FATAL: get_db() returned None in latest_entry.")
+            return None
+
+        cur = conn.cursor()
+        print("--- Executing query for latest entry ---")
+        cur.execute("SELECT TOP 1 * FROM CoolingData ORDER BY Timestamp DESC;")
+        row = cur.fetchone()
+
+        if not row:
+            print("--- Query successful, but no data found in CoolingData table. ---")
+            return None
+
+        print("--- Row found, processing for JSON serialization. ---")
+        columns = [column[0] for column in cur.description]
+        raw_entry = dict(zip(columns, row))
+
+        latest_entry_serializable = {}
+        for key, value in raw_entry.items():
+            if isinstance(value, datetime):
+                latest_entry_serializable[key] = value.isoformat()
+            elif isinstance(value,(Decimal, float)):
+                latest_entry_serializable[key] = f"{value:.2f}"
+            elif value is None:
+                latest_entry_serializable[key] = None
+            else:
+                latest_entry_serializable[key] = str(value)
+        
+        print("--- Serialization successful, returning data. ---")
+        return latest_entry_serializable
+
+    except pyodbc.Error as e:
+        error_message = f"SQL Error: {e}"
+        print(f"!!! {error_message} !!!")
+        return None
+    
+    except Exception as e:
+        error_message = f"An unexpected error occurred: {e}"
+        print(f"!!! {error_message} !!!")
+        return None
+
+def get_latest_entry():
+    latest_data = get_latest_entry_data()
+    if latest_data is None:
+        return jsonify({'latest_entry': None})
+    return jsonify({'latest_entry': latest_data})
 
 @app.teardown_appcontext
 def close_db(e=None):
@@ -107,47 +187,39 @@ def signup():
         return jsonify({'message': 'Server error'}), 500
 
 @app.route("/api/latest_entry", methods=['GET'])
-def get_latest_entry():
+def latest_entry():
+    return get_latest_entry() 
+
+@app.route('/api/chat', methods=['POST'])
+def chat_response():
+    global messages
     try:
-        conn = get_db()
-        if not conn:
-            print("!!! FATAL: get_db() returned None in latest_entry.")
-            return jsonify({'error': 'Database connection could not be established.'}), 500
+        print('Received chat response request:', request.get_json())
+        data = request.get_json()
+        if data is None:
+            print('No JSON data received')
+            return jsonify({'message': 'Invalid request data'}), 400
+        query = data.get('query')
 
-        cur = conn.cursor()
-        print("--- Executing query for latest entry ---")
-        cur.execute("SELECT TOP 1 * FROM CoolingData ORDER BY Timestamp DESC;")
-        row = cur.fetchone()
-
-        if not row:
-            print("--- Query successful, but no data found in CoolingData table. ---")
-            return jsonify({'latest_entry': None})
-
-        print("--- Row found, processing for JSON serialization. ---")
-        columns = [column[0] for column in cur.description]
-        raw_entry = dict(zip(columns, row))
-
-        latest_entry_serializable = {}
-        for key, value in raw_entry.items():
-            if isinstance(value, datetime):
-                latest_entry_serializable[key] = value.isoformat()
-            elif isinstance(value,(Decimal, float)):
-                latest_entry_serializable[key] = f"{value:.2f}"
-            elif value is None:
-                latest_entry_serializable[key] = None
-            else:
-                latest_entry_serializable[key] = str(value)
+        if query == "":
+            return jsonify({'message': 'Please enter a question'}), 400
         
-        print("--- Serialization successful, returning data. ---")
-        return jsonify({'latest_entry': latest_entry_serializable})
-
-    except pyodbc.Error as e:
-        error_message = f"SQL Error: {e}"
-        print(f"!!! {error_message} !!!")
-        return jsonify({'error': error_message}), 500
+        latest_data = get_latest_entry_data()
+        context_str = ""
+        if latest_data:
+            context_str = f"\nCurrent cooling data: {latest_data}"
+        else:
+            context_str = "\nNo recent cooling data available."
         
+        final_query = query + context_str
+        messages.append({"role": "user", "content": final_query})
+        messages = token_reducer(messages)
+        response: ChatResponse = chat(model='gemma3', messages=messages)
+        messages.append({"role": "assistant", "content": response.message.content})
+        return jsonify({'response': response.message.content}), 200
+
     except Exception as e:
-        error_message = f"An unexpected error occurred: {e}"
+        error_message = f"An unexpected error occured: {e}"
         print(f"!!! {error_message} !!!")
         return jsonify({'error': error_message}), 500
 
@@ -166,6 +238,10 @@ def serve_terms():
 @app.route('/dashboard.html')
 def serve_dashboard():
     return render_template('dashboard.html')
+
+@app.route('/chat.html')
+def serve_chat():
+    return render_template('chat.html')
 
 @app.route('/static/<path:path>')
 def serve_static(path):

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuclear Coolant Expert Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="chat-page">
+    <div class="chat-container">
+        <header>
+            <h1>Nuclear Coolant Expert</h1>
+            <div id="user-info" class="hidden">
+                <span id="welcome-user"></span>
+                <button id="logout-btn" class="btn-logout">Logout</button>
+            </div>
+            <div id="auth-buttons">
+                <button id="login-btn" class="btn">Login</button>
+            </div>
+        </header>
+
+        <div id="login-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Login</h2>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" name="login-username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="login-password" required>
+                    </div>
+                    <button type="submit" id="login-submit" class="btn">Login</button>
+                </form>
+                <p id="login-error" class="error-message"></p>
+            </div>
+        </div>
+
+        <div id="signup-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signup-form">
+                    <div class="input-group">
+                        <label for="signup-username">Username</label>
+                        <input type="text" id="signup-username" name="signup-username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" name="signup-password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" name="signup-email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-first-name">First Name</label>
+                        <input type="text" id="signup-first-name" name="signup-first-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-last-name">Last Name</label>
+                        <input type="text" id="signup-last-name" name="signup-last-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-age">Age</label>
+                        <input type="number" id="signup-age" name="signup-age" required min="18" max="120">
+                    </div>
+                    <button type="submit" id="signup-submit" class="btn">Sign Up</button>
+                </form>
+                <p id="signup-error" class="error-message"></p>
+                <div class="terms-container">
+                    <input type="checkbox" id="terms-checkbox" name="terms" required>
+                    <label for="terms-checkbox">I agree to the <a href="/terms.html">Terms and Conditions</a></label>
+                </div>
+            </div>
+        </div>
+
+        <div id="welcome-screen">
+            <h2>Welcome to Nuclear Coolant Expert</h2>
+            <p>Login or sign up to start chatting with our AI specialist on nuclear reactor cooling systems.</p>
+        </div>
+
+        <main id="chat-main" class="hidden">
+            <div id="messages-container">
+                <div id="messages"></div>
+            </div>
+            <div id="chat-input-container">
+                <div class="input-group">
+                    <label for="user-input">Your Question</label>
+                    <input type="text" id="user-input" placeholder="Ask about nuclear coolant systems..." maxlength="500">
+                </div>
+                <button id="send-btn" class="btn hidden">Send</button>
+            </div>
+        </main>
+    </div>
+    <script src="/static/chat.js"></script>
+</body>
+</html>
