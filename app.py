@@ -21,13 +21,22 @@ uid = os.getenv("USERNAME")
 pid = os.getenv("PASSWORD")
 
 max_token = 5000
-directions = """You are a professional AI guide for nuclear reactor cooling systems, offering concise, accurate 
-operator advice using data retrieved along with user inputs. Emphasize safety and reliability 
-via thermal-hydraulics, passive cooling, and emergency protocols. Structure responses: brief overview, key facts 
-(bullets if needed), actionable steps. Use direct, authoritative tone like a shift supervisor. Explain concepts 
-simply (e.g., passive cooling uses natural convection sans power); forecast scenarios with simulations; highlight 
-redundancies like ECCS. For gaps, consult site protocols or regulators, underscoring proven safety. Please unsure
-outputs are structured and maintain simplicity for intuitive experience.
+directions = """You are an AI assistant that provides advise to nuclear reactor operators about questions
+only related to the nuclear reactor cooling system.
+Structure of response:
+1. The answer to the user question
+2. Explanation with reasoning, if requiered.
+Please unsure outputs are structured and maintain simplicity for intuitive experience.
+
+Tools Usage:
+Output ONLY "get_latest_entry" to recieve current nuclear reactor cooling system data.
+
+Example Scenarios:
+User Query: Could you please provide the Nuclear Reactor Cooling System information?
+Output: get_latest_entry
+
+User Query: How are you today?
+Output: I can only answer questions related to the Nuclear Reactor Cooling System. Please ask a different question.
 """
 messages= [{"role": "system", "content": directions}]
 
@@ -204,19 +213,31 @@ def chat_response():
         if query == "":
             return jsonify({'message': 'Please enter a question'}), 400
         
-        latest_data = get_latest_entry_data()
-        context_str = ""
-        if latest_data:
-            context_str = f"\nCurrent cooling data: {latest_data}"
-        else:
-            context_str = "\nNo recent cooling data available."
-        
-        final_query = query + context_str
-        messages.append({"role": "user", "content": final_query})
+        messages.append({"role": "user", "content": query})
         messages = token_reducer(messages)
+
         response: ChatResponse = chat(model='gemma3', messages=messages)
         messages.append({"role": "assistant", "content": response.message.content})
-        return jsonify({'response': response.message.content}), 200
+
+        for word in messages[len(messages) - 1]["content"].split():
+            if "get_latest_entry" in word.rstrip():
+                latest_data = get_latest_entry_data()
+                context_str = ""
+                if latest_data:
+                    context_str = f"\nCurrent cooling data: {latest_data}"
+                    print("Succussfully retrieved data")
+                    print(context_str)
+                else:
+                    context_str = "\nNo recent cooling data available."
+                query += context_str
+                messages.append({"role": "user", "content": query})
+
+                response: ChatResponse = chat(model='gemma3', messages=messages)
+                messages.append({"role": "assistant", "content": response.message.content})
+                return jsonify({'response': response.message.content}), 200
+        
+        else:
+            return jsonify({'response': response.message.content}), 200
 
     except Exception as e:
         error_message = f"An unexpected error occured: {e}"

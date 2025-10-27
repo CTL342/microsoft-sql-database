@@ -118,11 +118,23 @@ button:disabled {
 }
 
 #live-data-entry {
-    width: 100%;
     margin-top: 1rem;
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100vh;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    outline: 1px solid #d3d3d3;
+}
+
+#live-data-entry:hover {
+    outline: 2px solid #aaaaaa;
 }
 
 .data-pair {
@@ -276,7 +288,7 @@ button:disabled {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 80%;
 }
 
 #messages-container {
