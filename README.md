@@ -1,6 +1,6 @@
 # Real-Time Cooling System SQL Dashboard
 
-This project is a web-based dashboard that displays real-time data from a Microsoft SQL Server database. It uses a Flask backend to serve a web interface and provide an API, with the SQL Server instance running in a Docker container for easy setup.
+This project is a web-based dashboard that displays real-time data from a Microsoft SQL Server database. It uses a Flask backend to serve a web interface and provide an API, with the SQL Server instance running in a Docker container for easy setup. It also now includes an integrated AI assistant, powered by a local Ollama model, to provide analysis and answer questions about the cooling system data.
 
 ## Features
 
@@ -8,12 +8,13 @@ This project is a web-based dashboard that displays real-time data from a Micros
 - **Real-Time Data Display**: Dashboard fetches and displays the latest entry from the `CoolingData` table every second.
 - **Containerized SQL Server**: Uses Microsoft SQL Server in a Docker container for portability.
 - **Flask Backend**: Lightweight Python-based web server to handle API requests and serve the frontend.
+- **AI-Powered Chat**: An integrated chat interface (powered by Ollama and `gemma3`) that can answer questions about the cooling system and retrieve real-time data.
 
 ## Technology Stack
 
-- **Backend**: Flask (Python)
+- **Backend**: Flask (Python), Ollama (for local LLM inference)
 - **Database**: Microsoft SQL Server (Docker)
-- **Python Libraries**: `pyodbc`, `SQLAlchemy`, `pandas`, `Flask-Cors`, `python-dotenv`, `werkzeug`
+- **Python Libraries**: `pyodbc`, `SQLAlchemy`, `pandas`, `Flask-Cors`, `python-dotenv`, `werkzeug`, `ollama`
 - **Frontend**: HTML, CSS, JavaScript (served by Flask)
 
 ## Prerequisites
@@ -27,6 +28,7 @@ Ensure the following software is installed:
   - [Azure Data Studio](https://azure.microsoft.com/en-us/products/data-studio/) (recommended, cross-platform)
   - [Beekeeper Studio](https://www.beekeeperstudio.io/) (cross-platform)
   - [SQL Server Management Studio (SSMS)](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms) (Windows-only)
+- **Ollama**: [Download Ollama](https://ollama.com/) (for running the local AI model)
 
 ## Setup Instructions
 
@@ -173,7 +175,20 @@ python import_kaggle_data.py
 
 This script creates the `CoolingData` table and uploads the CSV data.
 
+### 7. Set Up and Run Ollama
+
+This project uses a locally-run Ollama instance to power the AI chat feature.
+
+1.  **Install Ollama**: Ensure you have installed [Ollama](https://ollama.com/) (from the Prerequisites).
+2.  **Run the Ollama Service**: Launch the Ollama application. It must be running in the background for the chat feature to work.
+3.  **Pull the AI Model**: The application is configured to use the `gemma3` model. Open your terminal and run:
+    ```bash
+    ollama pull gemma3
+    ```
+
 ## Running the Application
+
+Before starting the web server, ensure your two background services (SQL Server and Ollama) are running.
 
 ### 1. Start the SQL Server Container
 
@@ -183,7 +198,11 @@ If the container is stopped, restart it:
 docker start sql_server_dashboard
 ```
 
-### 2. Start the Flask Web Server
+### 2. Start the Ollama Service
+
+Ensure the Ollama application (which you set up in Step 7) is running in the background.
+
+### 3. Start the Flask Web Server
 
 Ensure your virtual environment is active:
 
@@ -202,7 +221,7 @@ Run the Flask app:
 python app.py
 ```
 
-### 3. Access the Application
+### 4. Access the Application
 
 Open your browser and navigate to `http://127.0.0.1:5001`. Use the signup page to create an account, then log in to view the real-time dashboard.
 

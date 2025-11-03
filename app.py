@@ -9,7 +9,7 @@ from decimal import Decimal
 
 from ollama import chat
 from ollama import ChatResponse
-
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -28,6 +28,10 @@ Structure of response:
 2. Explanation with reasoning, if requiered.
 Please unsure outputs are structured and maintain simplicity for intuitive experience.
 
+Tools:
+get_latest_entry
+get_date_time
+
 Tools Usage:
 Output ONLY "get_latest_entry" to recieve current nuclear reactor cooling system data.
 
@@ -37,6 +41,9 @@ Output: get_latest_entry
 
 User Query: How are you today?
 Output: I can only answer questions related to the Nuclear Reactor Cooling System. Please ask a different question.
+
+User Query: Could you please provide the Nuclear Reactor Cooling System information and get the date / time for today?
+Output: get_latest_entry get_date_time
 """
 messages= [{"role": "system", "content": directions}]
 
@@ -219,25 +226,30 @@ def chat_response():
         response: ChatResponse = chat(model='gemma3', messages=messages)
         messages.append({"role": "assistant", "content": response.message.content})
 
+        temp_cond = False
+        context_str = ""
         for word in messages[len(messages) - 1]["content"].split():
             if "get_latest_entry" in word.rstrip():
+                temp_cond = True
                 latest_data = get_latest_entry_data()
-                context_str = ""
                 if latest_data:
-                    context_str = f"\nCurrent cooling data: {latest_data}"
+                    context_str += f"\nCurrent cooling data: {latest_data}"
                     print("Succussfully retrieved data")
                     print(context_str)
                 else:
-                    context_str = "\nNo recent cooling data available."
-                query += context_str
-                messages.append({"role": "user", "content": query})
+                    context_str += "\nNo recent cooling data available."
+            if "get_date_time" in word.rstrip():
+                temp_cond = True
+                context_str += "\nToday's Date and Time:" + str(datetime.now())
+                print("Successfully retrieved date and time")
+                print(context_str)
 
-                response: ChatResponse = chat(model='gemma3', messages=messages)
-                messages.append({"role": "assistant", "content": response.message.content})
-                return jsonify({'response': response.message.content}), 200
-        
-        else:
-            return jsonify({'response': response.message.content}), 200
+        if temp_cond == True:
+            query += context_str
+            messages.append({"role": "user", "content": query})
+            response: ChatResponse = chat(model='gemma3', messages=messages)
+            messages.append({"role": "assistant", "content": response.message.content})
+        return jsonify({'response': response.message.content}), 200
 
     except Exception as e:
         error_message = f"An unexpected error occured: {e}"
