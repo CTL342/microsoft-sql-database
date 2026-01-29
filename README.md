@@ -89,7 +89,7 @@ USERNAME=sa
 PASSWORD=YourStrongP@ssw0rd!
 ```
 
-⚠️ **Important**: The `PASSWORD` must meet SQL Server's complexity requirements (uppercase, lowercase, numbers, symbols).
+ **Important**: The `PASSWORD` must meet SQL Server's complexity requirements (uppercase, lowercase, numbers, symbols).
 
 ### 4. Start SQL Server with Docker
 
